@@ -1,0 +1,17 @@
+;labels
+al $1000 .temp
+al $1001 .xPixel
+al $1002 .yPixel
+al $1003 .iterations
+al $1004 .cx
+al $1005 .cy
+al $1006 .zx
+al $1007 .zy
+al $1008 .iterator
+al $2000 .START
+al $2003 .DIVIDE
+al $2007 .MULTIPLY
+al $2008 .DRAWPIXEL
+al $2009 .MAIN
+;breakpoints
+

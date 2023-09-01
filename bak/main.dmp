@@ -31,7 +31,7 @@
 00031  2000             ;
 00032  2000             ; JUMP TO MAIN LOOP
 00033  2000             START
-00034  2000  4C 58 20              JMP     MAIN
+00034  2000  4C 3E 20              JMP     MAIN
 00035  2003             ;
 00036  2003             ; DIVISION ROUTINE
 00037  2003             ; BIG SHOUTOUT TO THIS PAGE
@@ -74,43 +74,29 @@
 00074  2030  60                    RTS
 00075  2031             
 00076  2031             SETUPSCREEN 
-00077  2031                        ; STARTS AT $0400+16 UNTIL $0400
-00078  2031  A9 00                 LDA #00
-00079  2033  A2 10                 LDX #16
-00080  2035  A0 10                 LDY #16
-00081  2037             SCREENLOOP 
-00082  2037  69 01                 ADC #01
-00083  2039  C4 10                 CPY 16
-00084  203B  D0 08                 BNE SECONDLINE
-00085  203D  B0 06                 BCS SECONDLINE
-00086  203F  9D 00 04              STA $0400,X ; FIRST  LINE
-00087  2042  4C 51 20              JMP EXECUTELINE
-00088  2045             SECONDLINE 
-00089  2045  C4 0F                 CPY 15
-00090  2047  D0 08                 BNE THIRDLINE
-00091  2049  B0 06                 BCS THIRDLINE
-00092  204B  9D 28 04              STA $0428,X ; FIRST  LINE
-00093  204E  4C 51 20              JMP EXECUTELINE
-00094  2051             THIRDLINE 
-00095  2051             EXECUTELINE 
-00096  2051  CA                    DEX
-00097  2052  F0 03                 BEQ SCREENEND
-00098  2054  4C 37 20              JMP SCREENLOOP
-00099  2057                        ; WILL CREATE 16X16 CHARACTER GRID IN THE MIDDLE OF THE SCREEN
-00100  2057             SCREENEND 
-00101  2057  60                    RTS
-00102  2058             
-00103  2058             ; MAIN LOOP
-00104  2058             MAIN
-00105  2058                        ;LDA     #04
-00106  2058                        ;STA     TEMP
-00107  2058                        ;LDA     #01
-00108  2058  20 31 20              JSR     SETUPSCREEN
-00109  205B                        ;STA     $D020
-00110  205B  4C 58 20              JMP     MAIN
-00111  205E             
+00077  2031                        ; STARTS AT $0400 UNTIL $040F
+00078  2031  A2 10                 LDX #16
+00079  2033             SCREENLOOP 
+00080  2033  8A                    TXA
+00081  2034  9D 00 04              STA $0400,X
+00082  2037  CA                    DEX
+00083  2038  F0 03                 BEQ SCREENEND
+00084  203A  4C 33 20              JMP SCREENLOOP
+00085  203D                        ; WILL CREATE 16X16 CHARACTER GRID IN THE MIDDLE OF THE SCREEN
+00086  203D             SCREENEND 
+00087  203D  60                    RTS
+00088  203E             
+00089  203E             ; MAIN LOOP
+00090  203E             MAIN
+00091  203E                        ;LDA     #04
+00092  203E                        ;STA     TEMP
+00093  203E                        ;LDA     #01
+00094  203E  20 31 20              JSR     SETUPSCREEN
+00095  2041                        ;STA     $D020
+00096  2041  4C 3E 20              JMP     MAIN
+00097  2044             
 
-******* 27 Label(s) *******
+******* 24 Label(s) *******
 counter = $1002 
 cx = $1007 
 cy = $1008 
@@ -118,22 +104,19 @@ DIVIDE = $2003
 DIVIDEEND = $201A 
 DIVIDELOOP = $200A 
 DRAWPIXEL = $2030 
-EXECUTELINE = $2051 
 iterations = $1005 
 iterator = $100B 
-MAIN = $2058 
+MAIN = $203E 
 MULTIPLY = $2021 
 MULTIPLYEND = $202F 
 MULTIPLYLOOP = $2024 
 pixelcounter = $1006 
-SCREENEND = $2057 
-SCREENLOOP = $2037 
-SECONDLINE = $2045 
+SCREENEND = $203D 
+SCREENLOOP = $2033 
 SETUPSCREEN = $2031 
 START = $2000 
 temp = $1000 
 temp2 = $1001 
-THIRDLINE = $2051 
 xPixel = $1003 
 yPixel = $1004 
 zx = $1009 
