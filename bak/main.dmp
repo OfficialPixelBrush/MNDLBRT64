@@ -1,100 +1,165 @@
 00001  0000             ; NUMBER FORMAT
 00002  0001             ; SIID DDDD
 00003  0001             ; SIGNED 8-BIT FIXED POINT NUMBER
-00004  0001             *=$1000
-00005  1000             ; VARIABLES
-00006  1000             TEMP
-00007  1000  00                    BYTE    $00
-00008  1001             TEMP2
-00009  1001  00                    BYTE    $00
-00010  1002             COUNTER
-00011  1002  00                    BYTE    $00
-00012  1003             XPIXEL
-00013  1003  00                    BYTE    $00
-00014  1004             YPIXEL
-00015  1004  00                    BYTE    $00
-00016  1005             ITERATIONS 
-00017  1005  00                    BYTE    $00
-00018  1006             PIXELCOUNTER 
-00019  1006  00                    BYTE    $00
-00020  1007             CX
-00021  1007  00                    BYTE    $00
-00022  1008             CY
-00023  1008  00                    BYTE    $00
-00024  1009             ZX
-00025  1009  00                    BYTE    $00
-00026  100A             ZY
-00027  100A  00                    BYTE    $00
-00028  100B             ITERATOR 
-00029  100B  00                    BYTE    $00
-00030  100C             *=$2000
-00031  2000             ;
-00032  2000             ; JUMP TO MAIN LOOP
-00033  2000             START
-00034  2000  4C 3E 20              JMP     MAIN
-00035  2003             ;
-00036  2003             ; DIVISION ROUTINE
-00037  2003             ; BIG SHOUTOUT TO THIS PAGE
-00038  2003             ; HTTP://6502.ORG/TUTORIALS/COMPARE_INSTRUCTIONS.HTML
-00039  2003             DIVIDE     ; A / TEMP
-00040  2003  48                    PHA
-00041  2004  A9 00                 LDA     #00
-00042  2006  8D 02 10              STA     COUNTER
-00043  2009  68                    PLA
-00044  200A             DIVIDELOOP 
-00045  200A  CD 00 10              CMP     TEMP    ; CHECK IF TEMP < A
-00046  200D  30 0B                 BMI     DIVIDEEND; IF IT IS, END < A
-00047  200F  F0 09                 BEQ     DIVIDEEND; IF IT IS, END
-00048  2011  ED 00 10              SBC     TEMP    ; IF IT ISN'T SUBTRACT
-00049  2014  EE 02 10              INC     COUNTER ; INCREMENT COUNTER
-00050  2017  4C 0A 20              JMP     DIVIDELOOP; RETURN TO CHECK
-00051  201A             DIVIDEEND  ; IF DIVISION COMPLETE
-00052  201A  8D 00 10              STA     TEMP    ; STORE REMAINDER IN TEMP
-00053  201D  AD 02 10              LDA     COUNTER ; STORE DIVISON RESULT IN A
-00054  2020  60                    RTS
-00055  2021             ;
-00056  2021             ; MULTIPLICATION ROUTINE
-00057  2021             ; COULD BE MADE MORE EFFICIENT BY CHECKING WHICH ONE IS SMALLER BEFOREHAND
-00058  2021             MULTIPLY   ; A*TEMP
-00059  2021  8D 01 10              STA TEMP2
-00060  2024             MULTIPLYLOOP 
-00061  2024  CE 00 10              DEC TEMP        ; DECREMENT TEMP
-00062  2027  F0 06                 BEQ MULTIPLYEND ; CHECK IF TEMP == 0
-00063  2029  6D 01 10              ADC TEMP2
-00064  202C  4C 24 20              JMP MULTIPLYLOOP
-00065  202F             MULTIPLYEND 
-00066  202F  60                    RTS
-00067  2030             ; DRAW PIXEL ROUTINE
-00068  2030             DRAWPIXEL 
-00069  2030                        ; WILL DRAW WHICHEVER PIXEL IS CURRENTLY BEING POINTED AT
-00070  2030                        ; BY XPIXEL & YPIXEL
-00071  2030                        ; PROBABLY SOMETHING WHERE IT'S CMP'D WITH A MINIMUM VALUE, THEN
-00072  2030                        ; BITSHIFT LEFT OF THE RELEVANT LINE, OR #01,
-00073  2030                        ; UNTIL THE CHARACTER LINE IS FINISHED
-00074  2030  60                    RTS
-00075  2031             
-00076  2031             SETUPSCREEN 
-00077  2031                        ; STARTS AT $0400 UNTIL $040F
-00078  2031  A2 10                 LDX #16
-00079  2033             SCREENLOOP 
-00080  2033  8A                    TXA
-00081  2034  9D 00 04              STA $0400,X
-00082  2037  CA                    DEX
-00083  2038  F0 03                 BEQ SCREENEND
-00084  203A  4C 33 20              JMP SCREENLOOP
-00085  203D                        ; WILL CREATE 16X16 CHARACTER GRID IN THE MIDDLE OF THE SCREEN
-00086  203D             SCREENEND 
-00087  203D  60                    RTS
-00088  203E             
-00089  203E             ; MAIN LOOP
-00090  203E             MAIN
-00091  203E                        ;LDA     #04
-00092  203E                        ;STA     TEMP
-00093  203E                        ;LDA     #01
-00094  203E  20 31 20              JSR     SETUPSCREEN
-00095  2041                        ;STA     $D020
-00096  2041  4C 3E 20              JMP     MAIN
-00097  2044             
+00004  0001             ; BITMAP SCREEN
+00005  0001             
+00006  0001             *=$1000
+00007  1000             ; VARIABLES
+00008  1000             TEMP
+00009  1000  00                    BYTE    $00
+00010  1001             TEMP2
+00011  1001  00                    BYTE    $00
+00012  1002             COUNTER
+00013  1002  00                    BYTE    $00
+00014  1003             XPIXEL
+00015  1003  00                    BYTE    $00
+00016  1004             YPIXEL
+00017  1004  00                    BYTE    $00
+00018  1005             ITERATIONS 
+00019  1005  00                    BYTE    $00
+00020  1006             PIXELCOUNTER 
+00021  1006  00                    BYTE    $00
+00022  1007             CX
+00023  1007  00                    BYTE    $00
+00024  1008             CY
+00025  1008  00                    BYTE    $00
+00026  1009             ZX
+00027  1009  00                    BYTE    $00
+00028  100A             ZY
+00029  100A  00                    BYTE    $00
+00030  100B             ITERATOR
+00031  100B  00                    BYTE    $00
+00032  100C             *=$2000
+00033  2000             ;
+00034  2000             ; JUMP TO MAIN LOOP
+00035  2000             START
+00036  2000  4C 89 20              JMP     MAIN
+00037  2003             ;
+00038  2003             ; DIVISION ROUTINE
+00039  2003             ; BIG SHOUTOUT TO THIS PAGE
+00040  2003             ; HTTP://6502.ORG/TUTORIALS/COMPARE_INSTRUCTIONS.HTML
+00041  2003             DIVIDE     ; A / TEMP
+00042  2003  48                    PHA
+00043  2004  A9 00                 LDA     #00
+00044  2006  8D 02 10              STA     COUNTER
+00045  2009  68                    PLA
+00046  200A             DIVIDELOOP 
+00047  200A  CD 00 10              CMP     TEMP    ; CHECK IF TEMP < A
+00048  200D  30 0B                 BMI     DIVIDEEND; IF IT IS, END < A
+00049  200F  F0 09                 BEQ     DIVIDEEND; IF IT IS, END
+00050  2011  ED 00 10              SBC     TEMP    ; IF IT ISN'T SUBTRACT
+00051  2014  EE 02 10              INC     COUNTER ; INCREMENT COUNTER
+00052  2017  4C 0A 20              JMP     DIVIDELOOP; RETURN TO CHECK
+00053  201A             DIVIDEEND  ; IF DIVISION COMPLETE
+00054  201A  8D 00 10              STA     TEMP    ; STORE REMAINDER IN TEMP
+00055  201D  AD 02 10              LDA     COUNTER ; STORE DIVISON RESULT IN A
+00056  2020  60                    RTS
+00057  2021             ;
+00058  2021             ; MULTIPLICATION ROUTINE
+00059  2021             ; COULD BE MADE MORE EFFICIENT BY CHECKING WHICH ONE IS SMALLER BEFOREHAND
+00060  2021             MULTIPLY   ; A*TEMP
+00061  2021  8D 01 10              STA TEMP2
+00062  2024             MULTIPLYLOOP 
+00063  2024  CE 00 10              DEC TEMP        ; DECREMENT TEMP
+00064  2027  F0 06                 BEQ MULTIPLYEND ; CHECK IF TEMP == 0
+00065  2029  6D 01 10              ADC TEMP2
+00066  202C  4C 24 20              JMP MULTIPLYLOOP
+00067  202F             MULTIPLYEND 
+00068  202F  60                    RTS
+00069  2030             ; DRAW PIXEL ROUTINE
+00070  2030             DRAWPIXEL
+00071  2030                        ; WILL DRAW WHICHEVER PIXEL IS CURRENTLY BEING POINTED AT
+00072  2030                        ; BY XPIXEL & YPIXEL
+00073  2030                        ; PROBABLY SOMETHING WHERE IT'S CMP'D WITH A MINIMUM VALUE, THEN
+00074  2030                        ; BITSHIFT LEFT OF THE RELEVANT LINE, OR #01,
+00075  2030                        ; UNTIL THE CHARACTER LINE IS FINISHED
+00076  2030  60                    RTS
+00077  2031             
+00078  2031             SCREENFILL 
+00079  2031  A2 0F                 LDX #15
+00080  2033  A0 00                 LDY #00
+00081  2035                        
+00082  2035             SCREENLOOP 
+00083  2035  98                    TYA
+00084  2036  9D 00 04              STA $0400,X
+00085  2039             
+00086  2039  C8                    INY
+00087  203A  98                    TYA
+00088  203B  9D 28 04              STA $0428,X
+00089  203E             
+00090  203E  C8                    INY
+00091  203F  98                    TYA
+00092  2040  9D 50 04              STA $0450,X
+00093  2043             
+00094  2043  C8                    INY
+00095  2044  98                    TYA
+00096  2045  9D 78 04              STA $0478,X
+00097  2048             
+00098  2048  C8                    INY
+00099  2049  98                    TYA
+00100  204A  9D A0 04              STA $04A0,X
+00101  204D             
+00102  204D  C8                    INY
+00103  204E  98                    TYA
+00104  204F  9D C8 04              STA $04C8,X
+00105  2052             
+00106  2052  C8                    INY
+00107  2053  98                    TYA
+00108  2054  9D F0 04              STA $04F0,X
+00109  2057             
+00110  2057  C8                    INY
+00111  2058  98                    TYA
+00112  2059  9D 18 05              STA $0518,X
+00113  205C             
+00114  205C  C8                    INY
+00115  205D  98                    TYA
+00116  205E  9D 40 05              STA $0540,X
+00117  2061             
+00118  2061  C8                    INY
+00119  2062  98                    TYA
+00120  2063  9D 68 05              STA $0568,X
+00121  2066             
+00122  2066  C8                    INY
+00123  2067  98                    TYA
+00124  2068  9D 90 05              STA $0590,X
+00125  206B             
+00126  206B  C8                    INY
+00127  206C  98                    TYA
+00128  206D  9D B8 05              STA $05B8,X
+00129  2070             
+00130  2070  C8                    INY
+00131  2071  98                    TYA
+00132  2072  9D E0 05              STA $05E0,X
+00133  2075             
+00134  2075  C8                    INY
+00135  2076  98                    TYA
+00136  2077  9D 08 06              STA $0608,X
+00137  207A             
+00138  207A  C8                    INY
+00139  207B  98                    TYA
+00140  207C  9D 30 06              STA $0630,X
+00141  207F             
+00142  207F  C8                    INY
+00143  2080  98                    TYA
+00144  2081  9D 58 06              STA $0658,X
+00145  2084             
+00146  2084  C8                    INY
+00147  2085             ; CHECK IF ALL COLLUMNS HAVE BEEN DRAWN
+00148  2085  CA                    DEX
+00149  2086  10 AD                 BPL SCREENLOOP
+00150  2088  60                    RTS
+00151  2089             
+00152  2089             ; MAIN LOOP
+00153  2089             MAIN
+00154  2089  A9 00                 LDA #00
+00155  208B  8D 20 D0              STA $D020
+00156  208E  8D 21 D0              STA $D021
+00157  2091  20 31 20              JSR SCREENFILL
+00158  2094  4C 97 20              JMP     FREEZE
+00159  2097             
+00160  2097             FREEZE
+00161  2097  4C 97 20              JMP FREEZE
+00162  209A             
 
 ******* 24 Label(s) *******
 counter = $1002 
@@ -104,16 +169,16 @@ DIVIDE = $2003
 DIVIDEEND = $201A 
 DIVIDELOOP = $200A 
 DRAWPIXEL = $2030 
+FREEZE = $2097 
 iterations = $1005 
 iterator = $100B 
-MAIN = $203E 
+MAIN = $2089 
 MULTIPLY = $2021 
 MULTIPLYEND = $202F 
 MULTIPLYLOOP = $2024 
 pixelcounter = $1006 
-SCREENEND = $203D 
-SCREENLOOP = $2033 
-SETUPSCREEN = $2031 
+SCREENFILL = $2031 
+SCREENLOOP = $2035 
 START = $2000 
 temp = $1000 
 temp2 = $1001 

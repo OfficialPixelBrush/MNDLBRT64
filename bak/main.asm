@@ -1,6 +1,8 @@
 ; number format
 ; siid dddd
 ; signed 8-bit fixed point number
+; bitmap screen
+
 *=$1000
 ; variables
 temp
@@ -73,24 +75,87 @@ DRAWPIXEL
         ; until the character line is finished
         RTS
 
-SETUPSCREEN
-        ; starts at $0400 until $040F
-        LDX #16
+SCREENFILL
+        LDX #15
+        LDY #00
+        
 SCREENLOOP
-        TXA
-        STA $0400,X
+        TYA
+        STA $0400,x
+
+        INY
+        TYA
+        STA $0428,x
+
+        INY
+        TYA
+        STA $0450,x
+
+        INY
+        TYA
+        STA $0478,x
+
+        INY
+        TYA
+        STA $04A0,x
+
+        INY
+        TYA
+        STA $04C8,x
+
+        INY
+        TYA
+        STA $04F0,x
+
+        INY
+        TYA
+        STA $0518,x
+
+        INY
+        TYA
+        STA $0540,x
+
+        INY
+        TYA
+        STA $0568,x
+
+        INY
+        TYA
+        STA $0590,x
+
+        INY
+        TYA
+        STA $05B8,x
+
+        INY
+        TYA
+        STA $05E0,x
+
+        INY
+        TYA
+        STA $0608,x
+
+        INY
+        TYA
+        STA $0630,x
+
+        INY
+        TYA
+        STA $0658,x
+
+        INY
+; check if all collumns have been drawn
         DEX
-        BEQ SCREENEND
-        JMP SCREENLOOP
-        ; will create 16x16 character grid in the middle of the screen
-SCREENEND
-        RTS
+        BPL SCREENLOOP    
+        RTS 
 
 ; main loop
 MAIN
-        ;LDA     #04
-        ;STA     temp
-        ;LDA     #01
-        JSR     SETUPSCREEN
-        ;STA     $D020
-        JMP     MAIN
+        LDA #00
+        STA $D020
+        STA $D021
+        JSR SCREENFILL
+        JMP     FREEZE
+
+FREEZE
+        JMP FREEZE
