@@ -151,9 +151,9 @@
 00151  2089             
 00152  2089             ; MAIN LOOP
 00153  2089             MAIN
-00154  2089  A9 00                 LDA #00
-00155  208B  8D 20 D0              STA $D020
-00156  208E  8D 21 D0              STA $D021
+00154  2089  A9 00                 LDA #00   ; LOAD 0(BLACK)
+00155  208B  8D 20 D0              STA $D020 ; CHANGE BORDER TO BLACK
+00156  208E  8D 21 D0              STA $D021 ; CHANGE BG0 TO BLACK
 00157  2091  20 31 20              JSR SCREENFILL
 00158  2094  4C 97 20              JMP     FREEZE
 00159  2097             

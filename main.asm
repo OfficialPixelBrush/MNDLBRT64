@@ -66,6 +66,89 @@ MULTIPLYLOOP
         JMP MULTIPLYLOOP 
 MULTIPLYEND
         RTS
+
+;
+; draw box of characters
+SCREENFILL
+        LDX #00
+        LDY #00
+        LDA #00
+TODO make it not vertical
+        
+SCREENLOOP
+        TYA
+        STA $0400,x
+
+        ADC #1
+        CLC
+        STA $0428,x
+
+        ADC #1
+        CLC
+        STA $0450,x
+
+        ADC #1
+        CLC
+        STA $0478,x
+
+        ADC #1
+        CLC
+        STA $04A0,x
+
+        ADC #1
+        CLC
+        STA $04C8,x
+
+        ADC #1
+        CLC
+        STA $04F0,x
+
+        ADC #1
+        CLC
+        STA $0518,x
+
+        ADC #1
+        CLC
+        STA $0540,x
+
+        ADC #1
+        CLC
+        STA $0568,x
+
+        ADC #1
+        CLC
+        STA $0590,x
+
+        ADC #1
+        CLC
+        STA $05B8,x
+
+        ADC #1
+        CLC
+        STA $05E0,x
+
+        ADC #1
+        CLC
+        STA $0608,x
+
+        ADC #1
+        CLC
+        STA $0630,x
+
+        ADC #1
+        CLC
+        STA $0658,x
+
+        ADC #1
+        CLC
+        TAY
+; check if all collumns have been drawn
+        INX
+        TXA
+        CMP #16
+        BNE SCREENLOOP
+        RTS 
+
 ; draw pixel routine
 DRAWPIXEL
         ; will draw whichever pixel is currently being pointed at
@@ -74,80 +157,6 @@ DRAWPIXEL
         ; bitshift left of the relevant line, OR #01,
         ; until the character line is finished
         RTS
-
-SCREENFILL
-        LDX #15
-        LDY #00
-        
-SCREENLOOP
-        TYA
-        STA $0400,x
-
-        INY
-        TYA
-        STA $0428,x
-
-        INY
-        TYA
-        STA $0450,x
-
-        INY
-        TYA
-        STA $0478,x
-
-        INY
-        TYA
-        STA $04A0,x
-
-        INY
-        TYA
-        STA $04C8,x
-
-        INY
-        TYA
-        STA $04F0,x
-
-        INY
-        TYA
-        STA $0518,x
-
-        INY
-        TYA
-        STA $0540,x
-
-        INY
-        TYA
-        STA $0568,x
-
-        INY
-        TYA
-        STA $0590,x
-
-        INY
-        TYA
-        STA $05B8,x
-
-        INY
-        TYA
-        STA $05E0,x
-
-        INY
-        TYA
-        STA $0608,x
-
-        INY
-        TYA
-        STA $0630,x
-
-        INY
-        TYA
-        STA $0658,x
-
-        INY
-; check if all collumns have been drawn
-        DEX
-        BPL SCREENLOOP    
-        RTS 
 
 ; main loop
 MAIN
