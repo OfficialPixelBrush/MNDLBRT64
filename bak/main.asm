@@ -151,9 +151,9 @@ SCREENLOOP
 
 ; main loop
 MAIN
-        LDA #00
-        STA $D020
-        STA $D021
+        LDA #00   ; load 0(Black)
+        STA $D020 ; change Border to Black
+        STA $D021 ; change bg0 to Black
         JSR SCREENFILL
         JMP     FREEZE
 
