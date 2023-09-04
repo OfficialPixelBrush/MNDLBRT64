@@ -79,67 +79,67 @@ SCREENLOOP
         TYA
         STA $0400,x
 
-        ADC #1
+        ADC #16
         CLC
         STA $0428,x
 
-        ADC #1
+        ADC #16
         CLC
         STA $0450,x
 
-        ADC #1
+        ADC #16
         CLC
         STA $0478,x
 
-        ADC #1
+        ADC #16
         CLC
         STA $04A0,x
 
-        ADC #1
+        ADC #16
         CLC
         STA $04C8,x
 
-        ADC #1
+        ADC #16
         CLC
         STA $04F0,x
 
-        ADC #1
+        ADC #16
         CLC
         STA $0518,x
 
-        ADC #1
+        ADC #16
         CLC
         STA $0540,x
 
-        ADC #1
+        ADC #16
         CLC
         STA $0568,x
 
-        ADC #1
+        ADC #16
         CLC
         STA $0590,x
 
-        ADC #1
+        ADC #16
         CLC
         STA $05B8,x
 
-        ADC #1
+        ADC #16
         CLC
         STA $05E0,x
 
-        ADC #1
+        ADC #16
         CLC
         STA $0608,x
 
-        ADC #1
+        ADC #16
         CLC
         STA $0630,x
 
-        ADC #1
+        ADC #16
         CLC
         STA $0658,x
 
-        ADC #1
+        ADC #17
         CLC
         TAY
 ; check if all collumns have been drawn
