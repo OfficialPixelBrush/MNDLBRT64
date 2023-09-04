@@ -2,6 +2,11 @@
 ; siid dddd
 ; signed 8-bit fixed point number
 ; bitmap screen
+; 10 SYS8192
+
+*=$0801
+
+        BYTE    $0B, $08, $0A, $00, $9E, $38, $31, $39, $32, $00, $00, $00
 
 MEMORYSETUP = $D018
 CHARACTERSET = $3000
@@ -15,7 +20,7 @@ temp2
 counter
         BYTE    $00
 xPixel
-        BYTE    $00
+        BYTE    $FF
 yPixel
         BYTE    $00
 iterations
@@ -32,28 +37,44 @@ zy
         BYTE    $00
 iterator
         BYTE    $00
-*=$2000
 ;
-; jump to main loop
-START
-        JMP     MAIN
-;
-; division routine
+; signed division routine
 ; big shoutout to this page
 ; http://6502.org/tutorials/compare_instructions.html
-DIVIDE          ; A / temp
+SIGNEDDIVIDE          ; A / temp
         PHA
         LDA     #00
         STA     counter
         PLA
-DIVIDELOOP
+SIGNEDDIVIDELOOP
         CMP     temp    ; check if temp < A
-        BMI     DIVIDEEND; if it is, end < A
-        BEQ     DIVIDEEND; if it is, end
+        BMI     SIGNEDDIVIDEEND; if it is, end < A
+        BEQ     SIGNEDDIVIDEEND; if it is, end
         SBC     temp    ; if it isn't subtract
         INC     counter ; increment counter
-        JMP     DIVIDELOOP; return to check
-DIVIDEEND                ; if division complete
+        JMP     SIGNEDDIVIDELOOP; return to check
+SIGNEDDIVIDEEND                ; if division complete
+        STA     temp    ; store Remainder in temp
+        LDA     counter ; Store divison result in A
+        RTS
+
+;
+; unsigned division routine
+; big shoutout to this page
+; http://6502.org/tutorials/compare_instructions.html
+UNSIGNEDDIVIDE          ; A / temp
+        PHA
+        LDA     #00
+        STA     counter
+        PLA
+UNSIGNEDDIVIDELOOP
+        CMP     temp    ; check if temp < A
+        BCC     UNSIGNEDDIVIDEEND; if it is, end < A
+        BEQ     UNSIGNEDDIVIDEEND; if it is, end
+        SBC     temp    ; if it isn't subtract
+        INC     counter ; increment counter
+        JMP     UNSIGNEDDIVIDELOOP; return to check
+UNSIGNEDDIVIDEEND                ; if division complete
         STA     temp    ; store Remainder in temp
         LDA     counter ; Store divison result in A
         RTS
@@ -75,7 +96,7 @@ MULTIPLYEND
 SCREENFILL
         LDX #00
         LDY #00
-SCREENLOOP
+SCREENLOOP ; Self modifying code to ADC #40 to the address?
         TYA
         STA $0400,x
 
@@ -135,6 +156,16 @@ SCREENLOOP
 
 ; draw pixel routine
 DRAWPIXEL
+        LDX #00
+        LDA #16
+        STA temp
+        LDA #55
+        JSR UNSIGNEDDIVIDE ; result: A, remainder: temp
+        TAX
+        LDA temp
+        STA CHARACTERSET,x
+        ; WILL REQUIRE SELF MODIFYING CODE TO INCREMENT
+        ; ADDRESS THAT IS BEING DRAWN TO
         ; will draw whichever pixel is currently being pointed at
         ; by xPixel & yPixel
         ; probably something where it's CMP'd with a minimum value, then
@@ -143,25 +174,30 @@ DRAWPIXEL
         RTS
 
 MANDELBROT
-        LDA #00
+        LDX #00
 MANDELLOOP
+        TXA
         STA CHARACTERSET,x
         INX
-        ADC #01
         BNE MANDELLOOP
         RTS
 
+*=$2000
 ; main loop
 MAIN
         LDA #00   ; load 0(Black)
         STA $D020 ; change Border to Black
         STA $D021 ; change bg0 to Black
+        ; redefine character set location
         LDA MEMORYSETUP
         AND #240
         ORA #12
         STA MEMORYSETUP
+        ; fill screen with characters
         JSR SCREENFILL
-        JSR MANDELBROT
+        ; draw that shit
+        ;JSR MANDELBROT
+        JSR DRAWPIXEL
         JMP     FREEZE
 
 FREEZE

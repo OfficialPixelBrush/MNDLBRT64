@@ -3,6 +3,9 @@
 ; signed 8-bit fixed point number
 ; bitmap screen
 
+MEMORYSETUP = $D018
+CHARACTERSET = $3000
+
 *=$1000
 ; variables
 temp
@@ -72,75 +75,56 @@ MULTIPLYEND
 SCREENFILL
         LDX #00
         LDY #00
-        LDA #00
-TODO make it not vertical
-        
-SCREENLOOP
+SCREENLOOP ; Self modifying code to ADC #40 to the address?
         TYA
         STA $0400,x
 
         ADC #16
-        CLC
         STA $0428,x
 
         ADC #16
-        CLC
         STA $0450,x
 
         ADC #16
-        CLC
         STA $0478,x
 
         ADC #16
-        CLC
         STA $04A0,x
 
         ADC #16
-        CLC
         STA $04C8,x
 
         ADC #16
-        CLC
         STA $04F0,x
 
         ADC #16
-        CLC
         STA $0518,x
 
         ADC #16
-        CLC
         STA $0540,x
 
         ADC #16
-        CLC
         STA $0568,x
 
         ADC #16
-        CLC
         STA $0590,x
 
         ADC #16
-        CLC
         STA $05B8,x
 
         ADC #16
-        CLC
         STA $05E0,x
 
         ADC #16
-        CLC
         STA $0608,x
 
         ADC #16
-        CLC
         STA $0630,x
 
         ADC #16
-        CLC
         STA $0658,x
 
         ADC #17
-        CLC
         TAY
 ; check if all collumns have been drawn
         INX
@@ -151,6 +135,9 @@ SCREENLOOP
 
 ; draw pixel routine
 DRAWPIXEL
+         
+        ; WILL REQUIRE SELF MODIFYING CODE TO INCREMENT
+        ; ADDRESS THAT IS BEING DRAWN TO
         ; will draw whichever pixel is currently being pointed at
         ; by xPixel & yPixel
         ; probably something where it's CMP'd with a minimum value, then
@@ -158,12 +145,26 @@ DRAWPIXEL
         ; until the character line is finished
         RTS
 
+MANDELBROT
+        LDX #00
+MANDELLOOP
+        TXA
+        STA CHARACTERSET,x
+        INX
+        BNE MANDELLOOP
+        RTS
+
 ; main loop
 MAIN
         LDA #00   ; load 0(Black)
         STA $D020 ; change Border to Black
         STA $D021 ; change bg0 to Black
+        LDA MEMORYSETUP
+        AND #240
+        ORA #12
+        STA MEMORYSETUP
         JSR SCREENFILL
+        JSR MANDELBROT
         JMP     FREEZE
 
 FREEZE
