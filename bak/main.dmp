@@ -33,7 +33,7 @@
 00033  2000             ;
 00034  2000             ; JUMP TO MAIN LOOP
 00035  2000             START
-00036  2000  4C 89 20              JMP     MAIN
+00036  2000  4C A0 20              JMP     MAIN
 00037  2003             ;
 00038  2003             ; DIVISION ROUTINE
 00039  2003             ; BIG SHOUTOUT TO THIS PAGE
@@ -66,100 +66,108 @@
 00066  202C  4C 24 20              JMP MULTIPLYLOOP
 00067  202F             MULTIPLYEND 
 00068  202F  60                    RTS
-00069  2030             ; DRAW PIXEL ROUTINE
-00070  2030             DRAWPIXEL
-00071  2030                        ; WILL DRAW WHICHEVER PIXEL IS CURRENTLY BEING POINTED AT
-00072  2030                        ; BY XPIXEL & YPIXEL
-00073  2030                        ; PROBABLY SOMETHING WHERE IT'S CMP'D WITH A MINIMUM VALUE, THEN
-00074  2030                        ; BITSHIFT LEFT OF THE RELEVANT LINE, OR #01,
-00075  2030                        ; UNTIL THE CHARACTER LINE IS FINISHED
-00076  2030  60                    RTS
-00077  2031             
-00078  2031             SCREENFILL 
-00079  2031  A2 0F                 LDX #15
-00080  2033  A0 00                 LDY #00
-00081  2035                        
-00082  2035             SCREENLOOP 
-00083  2035  98                    TYA
-00084  2036  9D 00 04              STA $0400,X
-00085  2039             
-00086  2039  C8                    INY
-00087  203A  98                    TYA
-00088  203B  9D 28 04              STA $0428,X
-00089  203E             
-00090  203E  C8                    INY
-00091  203F  98                    TYA
-00092  2040  9D 50 04              STA $0450,X
-00093  2043             
-00094  2043  C8                    INY
-00095  2044  98                    TYA
-00096  2045  9D 78 04              STA $0478,X
-00097  2048             
-00098  2048  C8                    INY
-00099  2049  98                    TYA
-00100  204A  9D A0 04              STA $04A0,X
-00101  204D             
-00102  204D  C8                    INY
-00103  204E  98                    TYA
-00104  204F  9D C8 04              STA $04C8,X
-00105  2052             
-00106  2052  C8                    INY
-00107  2053  98                    TYA
-00108  2054  9D F0 04              STA $04F0,X
-00109  2057             
-00110  2057  C8                    INY
-00111  2058  98                    TYA
-00112  2059  9D 18 05              STA $0518,X
-00113  205C             
-00114  205C  C8                    INY
-00115  205D  98                    TYA
-00116  205E  9D 40 05              STA $0540,X
-00117  2061             
-00118  2061  C8                    INY
-00119  2062  98                    TYA
-00120  2063  9D 68 05              STA $0568,X
-00121  2066             
-00122  2066  C8                    INY
-00123  2067  98                    TYA
-00124  2068  9D 90 05              STA $0590,X
-00125  206B             
-00126  206B  C8                    INY
-00127  206C  98                    TYA
-00128  206D  9D B8 05              STA $05B8,X
-00129  2070             
-00130  2070  C8                    INY
-00131  2071  98                    TYA
-00132  2072  9D E0 05              STA $05E0,X
-00133  2075             
-00134  2075  C8                    INY
-00135  2076  98                    TYA
-00136  2077  9D 08 06              STA $0608,X
-00137  207A             
-00138  207A  C8                    INY
-00139  207B  98                    TYA
-00140  207C  9D 30 06              STA $0630,X
-00141  207F             
-00142  207F  C8                    INY
-00143  2080  98                    TYA
-00144  2081  9D 58 06              STA $0658,X
-00145  2084             
-00146  2084  C8                    INY
-00147  2085             ; CHECK IF ALL COLLUMNS HAVE BEEN DRAWN
-00148  2085  CA                    DEX
-00149  2086  10 AD                 BPL SCREENLOOP
-00150  2088  60                    RTS
-00151  2089             
-00152  2089             ; MAIN LOOP
-00153  2089             MAIN
-00154  2089  A9 00                 LDA #00   ; LOAD 0(BLACK)
-00155  208B  8D 20 D0              STA $D020 ; CHANGE BORDER TO BLACK
-00156  208E  8D 21 D0              STA $D021 ; CHANGE BG0 TO BLACK
-00157  2091  20 31 20              JSR SCREENFILL
-00158  2094  4C 97 20              JMP     FREEZE
-00159  2097             
-00160  2097             FREEZE
-00161  2097  4C 97 20              JMP FREEZE
-00162  209A             
+00069  2030             
+00070  2030             ;
+00071  2030             ; DRAW BOX OF PIXELS
+00072  2030             SCREENFILL 
+00073  2030  A2 00                 LDX #00
+00074  2032  A0 00                 LDY #00
+00075  2034  A9 00                 LDA #00
+00076  2036                        
+00077  2036             SCREENLOOP 
+00078  2036  98                    TYA
+00079  2037  9D 00 04              STA $0400,X
+00080  203A             
+00081  203A  69 01                 ADC #1
+00082  203C  18                    CLC
+00083  203D  9D 28 04              STA $0428,X
+00084  2040             
+00085  2040  69 01                 ADC #1
+00086  2042  18                    CLC
+00087  2043  9D 50 04              STA $0450,X
+00088  2046             
+00089  2046  69 01                 ADC #1
+00090  2048  18                    CLC
+00091  2049  9D 78 04              STA $0478,X
+00092  204C             
+00093  204C  69 01                 ADC #1
+00094  204E  18                    CLC
+00095  204F  9D A0 04              STA $04A0,X
+00096  2052             
+00097  2052  69 01                 ADC #1
+00098  2054  18                    CLC
+00099  2055  9D C8 04              STA $04C8,X
+00100  2058             
+00101  2058  69 01                 ADC #1
+00102  205A  18                    CLC
+00103  205B  9D F0 04              STA $04F0,X
+00104  205E             
+00105  205E  69 01                 ADC #1
+00106  2060  18                    CLC
+00107  2061  9D 18 05              STA $0518,X
+00108  2064             
+00109  2064  69 01                 ADC #1
+00110  2066  18                    CLC
+00111  2067  9D 40 05              STA $0540,X
+00112  206A             
+00113  206A  69 01                 ADC #1
+00114  206C  18                    CLC
+00115  206D  9D 68 05              STA $0568,X
+00116  2070             
+00117  2070  69 01                 ADC #1
+00118  2072  18                    CLC
+00119  2073  9D 90 05              STA $0590,X
+00120  2076             
+00121  2076  69 01                 ADC #1
+00122  2078  18                    CLC
+00123  2079  9D B8 05              STA $05B8,X
+00124  207C             
+00125  207C  69 01                 ADC #1
+00126  207E  18                    CLC
+00127  207F  9D E0 05              STA $05E0,X
+00128  2082             
+00129  2082  69 01                 ADC #1
+00130  2084  18                    CLC
+00131  2085  9D 08 06              STA $0608,X
+00132  2088             
+00133  2088  69 01                 ADC #1
+00134  208A  18                    CLC
+00135  208B  9D 30 06              STA $0630,X
+00136  208E             
+00137  208E  69 01                 ADC #1
+00138  2090  18                    CLC
+00139  2091  9D 58 06              STA $0658,X
+00140  2094             
+00141  2094  69 01                 ADC #1
+00142  2096  18                    CLC
+00143  2097  A8                    TAY
+00144  2098             ; CHECK IF ALL COLLUMNS HAVE BEEN DRAWN
+00145  2098  E8                    INX
+00146  2099  8A                    TXA
+00147  209A  C9 10                 CMP #16
+00148  209C  D0 98                 BNE SCREENLOOP
+00149  209E  60                    RTS
+00150  209F             
+00151  209F             ; DRAW PIXEL ROUTINE
+00152  209F             DRAWPIXEL
+00153  209F                        ; WILL DRAW WHICHEVER PIXEL IS CURRENTLY BEING POINTED AT
+00154  209F                        ; BY XPIXEL & YPIXEL
+00155  209F                        ; PROBABLY SOMETHING WHERE IT'S CMP'D WITH A MINIMUM VALUE, THEN
+00156  209F                        ; BITSHIFT LEFT OF THE RELEVANT LINE, OR #01,
+00157  209F                        ; UNTIL THE CHARACTER LINE IS FINISHED
+00158  209F  60                    RTS
+00159  20A0             
+00160  20A0             ; MAIN LOOP
+00161  20A0             MAIN
+00162  20A0  A9 00                 LDA #00   ; LOAD 0(BLACK)
+00163  20A2  8D 20 D0              STA $D020 ; CHANGE BORDER TO BLACK
+00164  20A5  8D 21 D0              STA $D021 ; CHANGE BG0 TO BLACK
+00165  20A8  20 30 20              JSR SCREENFILL
+00166  20AB  4C AE 20              JMP     FREEZE
+00167  20AE             
+00168  20AE             FREEZE
+00169  20AE  4C AE 20              JMP FREEZE
+00170  20B1             
 
 ******* 24 Label(s) *******
 counter = $1002 
@@ -168,17 +176,17 @@ cy = $1008
 DIVIDE = $2003 
 DIVIDEEND = $201A 
 DIVIDELOOP = $200A 
-DRAWPIXEL = $2030 
-FREEZE = $2097 
+DRAWPIXEL = $209F 
+FREEZE = $20AE 
 iterations = $1005 
 iterator = $100B 
-MAIN = $2089 
+MAIN = $20A0 
 MULTIPLY = $2021 
 MULTIPLYEND = $202F 
 MULTIPLYLOOP = $2024 
 pixelcounter = $1006 
-SCREENFILL = $2031 
-SCREENLOOP = $2035 
+SCREENFILL = $2030 
+SCREENLOOP = $2036 
 START = $2000 
 temp = $1000 
 temp2 = $1001 
