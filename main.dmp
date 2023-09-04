@@ -170,70 +170,80 @@
 00170  10B4                        ;
 00171  10B4                        ; E.G.
 00172  10B4                        ; $3015 = 0X01TH CHARACTER OF 0X00TH LINE, 5TH SUB-LINE
-00173  10B4                        ;
-00174  10B4                        ;LDA $00
-00175  10B4                        ;LSR A
-00176  10B4                        ;LSR A
-00177  10B4                        ;LSR A
-00178  10B4                        ;LSR A
-00179  10B4                        ;ORA $30 ; DO THE UPPER BYTE
-00180  10B4                        ;STA MODIFYTHIS+2
-00181  10B4                        ; AAA
-00182  10B4  A9 55                 LDA #85
-00183  10B6             ;MODIFYTHIS
-00184  10B6  20 BD 10              JSR MANDELBROT
-00185  10B9  8D 00 31              STA CHARACTERSET+$0100
-00186  10BC                        ;STA CHARACTERSET
-00187  10BC                        ; WILL REQUIRE SELF MODIFYING CODE
-00188  10BC                        ; WILL DRAW WHICHEVER PIXEL IS CURRENTLY BEING POINTED AT
-00189  10BC                        ; BY XPIXEL & YPIXEL
-00190  10BC                        ; PROBABLY SOMETHING WHERE IT'S CMP'D WITH A MINIMUM VALUE, THEN
-00191  10BC                        ; BITSHIFT LEFT OF THE RELEVANT LINE, OR #01,
-00192  10BC                        ; UNTIL THE CHARACTER LINE IS FINISHED
-00193  10BC  60                    RTS
-00194  10BD             
-00195  10BD             MANDELBROT 
-00196  10BD  A2 00                 LDX #00
-00197  10BF             MANDELLOOP 
-00198  10BF                        ;TXA ; WHY DOES THIS NOT WORK???
-00199  10BF  9D 00 30              STA CHARACTERSET,X
-00200  10C2  E8                    INX
-00201  10C3  D0 FA                 BNE MANDELLOOP
-00202  10C5  60                    RTS
-00203  10C6             
-00204  10C6             *=$2000
-00205  2000             ; MAIN LOOP
-00206  2000             MAIN
-00207  2000  A9 00                 LDA #00   ; LOAD 0(BLACK)
-00208  2002  8D 20 D0              STA $D020 ; CHANGE BORDER TO BLACK
-00209  2005  8D 21 D0              STA $D021 ; CHANGE BG0 TO BLACK
-00210  2008                        ; REDEFINE CHARACTER SET LOCATION
-00211  2008  AD 18 D0              LDA MEMORYSETUP
-00212  200B  29 F0                 AND #240
-00213  200D  09 0C                 ORA #12
-00214  200F  8D 18 D0              STA MEMORYSETUP
-00215  2012                        ; FILL SCREEN WITH CHARACTERS
-00216  2012  20 57 10              JSR SCREENFILL
-00217  2015                        ; DRAW THAT SHIT
-00218  2015                        ;JSR MANDELBROT
-00219  2015  20 B4 10              JSR DRAWPIXEL
-00220  2018  4C 1B 20              JMP     FREEZE
-00221  201B             
-00222  201B             FREEZE
-00223  201B  4C 1B 20              JMP FREEZE
-00224  201E             
+00173  10B4                        ; MAX PIXELS OF 0-127!!
+00174  10B4                        ; DO THE UPPER BYTE
+00175  10B4  AD 04 10              LDA YPIXEL
+00176  10B7  4A                    LSR A
+00177  10B8  4A                    LSR A
+00178  10B9  4A                    LSR A
+00179  10BA  4A                    LSR A
+00180  10BB  09 30                 ORA #48 ; 0X30
+00181  10BD  8D D7 10              STA MODIFYTHIS+2
+00182  10C0                        ; LOWER BYTE
+00183  10C0  AD 04 10              LDA YPIXEL
+00184  10C3  29 0F                 AND #15 ; 0X0F
+00185  10C5  8D 00 10              STA TEMP
+00186  10C8  AD 03 10              LDA XPIXEL
+00187  10CB  29 F0                 AND #240 ; 0XF0
+00188  10CD  0D 00 10              ORA TEMP
+00189  10D0  8D D6 10              STA MODIFYTHIS+1
+00190  10D3                        ;
+00191  10D3  A9 55                 LDA #85 ; 0101 0101
+00192  10D5             MODIFYTHIS 
+00193  10D5                        ;JSR MANDELBROT
+00194  10D5  8D 00 30              STA CHARACTERSET
+00195  10D8                        ;STA CHARACTERSET
+00196  10D8                        ; WILL REQUIRE SELF MODIFYING CODE
+00197  10D8                        ; WILL DRAW WHICHEVER PIXEL IS CURRENTLY BEING POINTED AT
+00198  10D8                        ; BY XPIXEL & YPIXEL
+00199  10D8                        ; PROBABLY SOMETHING WHERE IT'S CMP'D WITH A MINIMUM VALUE, THEN
+00200  10D8                        ; BITSHIFT LEFT OF THE RELEVANT LINE, OR #01,
+00201  10D8                        ; UNTIL THE CHARACTER LINE IS FINISHED
+00202  10D8  60                    RTS
+00203  10D9             
+00204  10D9             MANDELBROT 
+00205  10D9  A2 00                 LDX #00
+00206  10DB             MANDELLOOP 
+00207  10DB                        ;TXA ; WHY DOES THIS NOT WORK???
+00208  10DB  9D 00 30              STA CHARACTERSET,X
+00209  10DE  E8                    INX
+00210  10DF  D0 FA                 BNE MANDELLOOP
+00211  10E1  60                    RTS
+00212  10E2             
+00213  10E2             *=$2000
+00214  2000             ; MAIN LOOP
+00215  2000             MAIN
+00216  2000  A9 00                 LDA #00   ; LOAD 0(BLACK)
+00217  2002  8D 20 D0              STA $D020 ; CHANGE BORDER TO BLACK
+00218  2005  8D 21 D0              STA $D021 ; CHANGE BG0 TO BLACK
+00219  2008                        ; REDEFINE CHARACTER SET LOCATION
+00220  2008                        ;LDA MEMORYSETUP
+00221  2008                        ;AND #240
+00222  2008                        ;ORA #12
+00223  2008                        ;STA MEMORYSETUP
+00224  2008                        ; FILL SCREEN WITH CHARACTERS
+00225  2008  20 57 10              JSR SCREENFILL
+00226  200B                        ; DRAW THAT SHIT
+00227  200B                        ;JSR MANDELBROT
+00228  200B  20 B4 10              JSR DRAWPIXEL
+00229  200E  4C 11 20              JMP     FREEZE
+00230  2011             
+00231  2011             FREEZE
+00232  2011  4C 11 20              JMP FREEZE
+00233  2014             
 
-******* 28 Label(s) *******
+******* 29 Label(s) *******
 counter = $1002 
 cx = $1007 
 cy = $1008 
 DRAWPIXEL = $10B4 
-FREEZE = $201B 
+FREEZE = $2011 
 iterations = $1005 
 iterator = $100B 
 MAIN = $2000 
-MANDELBROT = $10BD 
-MANDELLOOP = $10BF 
+MANDELBROT = $10D9 
+MANDELLOOP = $10DB 
+MODIFYTHIS = $10D5 
 MULTIPLY = $1048 
 MULTIPLYEND = $1056 
 MULTIPLYLOOP = $104B 
@@ -259,12 +269,12 @@ cy
 iterations
 iterator
 MAIN
+MANDELBROT
+MODIFYTHIS
 MULTIPLY
 pixelcounter
 SIGNEDDIVIDE
 UNSIGNEDDIVIDE
-xPixel
-yPixel
 zx
 zy
 
@@ -273,6 +283,6 @@ CHARACTERSET  = $3000
 MEMORYSETUP  = $D018
 tgt_c64  = $0001
 ******* 2 Unused variables(s) *******
-CHARACTERSET
+MEMORYSETUP
 tgt_c64
 
