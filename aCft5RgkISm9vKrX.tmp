@@ -1,3 +1,5 @@
+##{0:0:0:main.prg}C:\Users\letsp\Desktop\GitHub\MNDLBRT\main.asm
+
 ; number format
 ; siid dddd
 ; signed 8-bit fixed point number
@@ -156,16 +158,35 @@ SCREENLOOP ; Self modifying code to ADC #40 to the address?
 
 ; draw pixel routine
 DRAWPIXEL
-        LDX #00
-        LDA #16
-        STA temp
-        LDA #55
-        JSR UNSIGNEDDIVIDE ; result: A, remainder: temp
-        TAX
-        LDA temp
-        STA CHARACTERSET,x
-        ; WILL REQUIRE SELF MODIFYING CODE TO INCREMENT
-        ; ADDRESS THAT IS BEING DRAWN TO
+        ; 
+        ;  Xx Yy
+        ;  || ||
+        ;  vv vv
+        ;
+        ; $3Y Xy x <- Pixel in Character
+        ;  || ||
+        ;  || |+----> Line in Character
+        ;  || +-----> Horizontal Tile
+        ;  |+-------> Vertical Tile
+        ;  +--------> Address
+        ; 
+        ; e.g.
+        ; $3015 = 0x01th Character of 0x00th line, 5th sub-line
+        ;
+        ;LDA $00
+        ;LSR A
+        ;LSR A
+        ;LSR A
+        ;LSR A
+        ;ORA $30 ; do the upper byte
+        ;STA MODIFYTHIS+2
+        ; AAA
+        LDA #85
+;MODIFYTHIS
+        JSR MANDELBROT
+        STA CHARACTERSET+$0100
+        ;STA CHARACTERSET
+        ; WILL REQUIRE SELF MODIFYING CODE
         ; will draw whichever pixel is currently being pointed at
         ; by xPixel & yPixel
         ; probably something where it's CMP'd with a minimum value, then
@@ -176,7 +197,7 @@ DRAWPIXEL
 MANDELBROT
         LDX #00
 MANDELLOOP
-        TXA
+        ;TXA ; WHY DOES THIS NOT WORK???
         STA CHARACTERSET,x
         INX
         BNE MANDELLOOP
@@ -202,3 +223,4 @@ MAIN
 
 FREEZE
         JMP FREEZE
+
