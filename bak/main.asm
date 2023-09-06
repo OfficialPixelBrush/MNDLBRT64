@@ -170,19 +170,28 @@ DRAWPIXEL
         ; 
         ; e.g.
         ; $3015 = 0x01th Character of 0x00th line, 5th sub-line
-        ;
-        ;LDA $00
-        ;LSR A
-        ;LSR A
-        ;LSR A
-        ;LSR A
-        ;ORA $30 ; do the upper byte
-        ;STA MODIFYTHIS+2
-        ; AAA
-        LDA #85
-;MODIFYTHIS
-        JSR MANDELBROT
-        STA CHARACTERSET+$0100
+        ; max Pixels of 0-127!!
+        ; do the upper byte
+        LDA yPixel
+        LSR A
+        LSR A
+        LSR A
+        LSR A
+        ORA #48 ; 0x30
+        STA MODIFYTHIS+2
+        ; lower Byte
+        LDA yPixel
+        AND #15 ; 0x0F
+        STA temp
+        LDA xPixel
+        AND #240 ; 0xF0
+        ORA temp
+        STA MODIFYTHIS+1
+        ; 
+        LDA #85 ; 0101 0101
+MODIFYTHIS
+        ;JSR MANDELBROT
+        STA CHARACTERSET
         ;STA CHARACTERSET
         ; WILL REQUIRE SELF MODIFYING CODE
         ; will draw whichever pixel is currently being pointed at
@@ -208,10 +217,10 @@ MAIN
         STA $D020 ; change Border to Black
         STA $D021 ; change bg0 to Black
         ; redefine character set location
-        LDA MEMORYSETUP
-        AND #240
-        ORA #12
-        STA MEMORYSETUP
+        ;LDA MEMORYSETUP
+        ;AND #240
+        ;ORA #12
+        ;STA MEMORYSETUP
         ; fill screen with characters
         JSR SCREENFILL
         ; draw that shit
