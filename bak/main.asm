@@ -20,7 +20,7 @@ temp2
 counter
         BYTE    $00
 xPixel
-        BYTE    $FF
+        BYTE    $00
 yPixel
         BYTE    $00
 iterations
@@ -167,6 +167,8 @@ DRAWPIXEL
         ;  || +-----> Horizontal Tile
         ;  |+-------> Vertical Tile
         ;  +--------> Address
+        ;
+        ; 0011:0YYY YXXX:Xyyy ; 0xxx
         ; 
         ; e.g.
         ; $3015 = 0x01th Character of 0x00th line, 5th sub-line
@@ -177,14 +179,17 @@ DRAWPIXEL
         LSR A
         LSR A
         LSR A
+        LSR A
         ORA #48 ; 0x30
         STA MODIFYTHIS+2
         ; lower Byte
-        LDA yPixel
-        AND #15 ; 0x0F
+        LDA #0
+        ROR ; shift Carry into A
+        ORA xPixel
+        AND #248 ; 1111 1000
         STA temp
-        LDA xPixel
-        AND #240 ; 0xF0
+        LDA yPixel
+        AND #7   ; 0000 0111
         ORA temp
         STA MODIFYTHIS+1
         ; 
@@ -204,8 +209,8 @@ MODIFYTHIS
 MANDELBROT
         LDX #00
 MANDELLOOP
-        ;TXA ; WHY DOES THIS NOT WORK???
-        STA CHARACTERSET,x
+        INC yPixel
+        JSR DRAWPIXEL
         INX
         BNE MANDELLOOP
         RTS
@@ -217,15 +222,15 @@ MAIN
         STA $D020 ; change Border to Black
         STA $D021 ; change bg0 to Black
         ; redefine character set location
-        ;LDA MEMORYSETUP
-        ;AND #240
-        ;ORA #12
-        ;STA MEMORYSETUP
+        LDA MEMORYSETUP
+        AND #240
+        ORA #12
+        STA MEMORYSETUP
         ; fill screen with characters
         JSR SCREENFILL
         ; draw that shit
-        ;JSR MANDELBROT
-        JSR DRAWPIXEL
+        JSR MANDELBROT
+        ;JSR DRAWPIXEL
         JMP     FREEZE
 
 FREEZE
