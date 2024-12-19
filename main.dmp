@@ -17,275 +17,86 @@
 00017  1000  00                    BYTE    $00
 00018  1001             TEMP2
 00019  1001  00                    BYTE    $00
-00020  1002             COUNTER
+00020  1002             PX
 00021  1002  00                    BYTE    $00
-00022  1003             XPIXEL
+00022  1003             PY
 00023  1003  00                    BYTE    $00
-00024  1004             YPIXEL
+00024  1004             ITERATIONS 
 00025  1004  00                    BYTE    $00
-00026  1005             ITERATIONS 
+00026  1005             X
 00027  1005  00                    BYTE    $00
-00028  1006             PIXELCOUNTER 
+00028  1006             Y
 00029  1006  00                    BYTE    $00
-00030  1007             CX
-00031  1007  00                    BYTE    $00
-00032  1008             CY
-00033  1008  00                    BYTE    $00
-00034  1009             ZX
-00035  1009  00                    BYTE    $00
-00036  100A             ZY
-00037  100A  00                    BYTE    $00
-00038  100B             ITERATOR
-00039  100B  00                    BYTE    $00
-00040  100C             ;
-00041  100C             ; SIGNED DIVISION ROUTINE
-00042  100C             ; BIG SHOUTOUT TO THIS PAGE
-00043  100C             ; HTTP://6502.ORG/TUTORIALS/COMPARE_INSTRUCTIONS.HTML
-00044  100C             SIGNEDDIVIDE ; A / TEMP
-00045  100C  48                    PHA
-00046  100D  A9 00                 LDA     #00
-00047  100F  8D 02 10              STA     COUNTER
-00048  1012  68                    PLA
-00049  1013             SIGNEDDIVIDELOOP 
-00050  1013  CD 00 10              CMP     TEMP    ; CHECK IF TEMP < A
-00051  1016  30 0B                 BMI     SIGNEDDIVIDEEND; IF IT IS, END < A
-00052  1018  F0 09                 BEQ     SIGNEDDIVIDEEND; IF IT IS, END
-00053  101A  ED 00 10              SBC     TEMP    ; IF IT ISN'T SUBTRACT
-00054  101D  EE 02 10              INC     COUNTER ; INCREMENT COUNTER
-00055  1020  4C 13 10              JMP     SIGNEDDIVIDELOOP; RETURN TO CHECK
-00056  1023             SIGNEDDIVIDEEND ; IF DIVISION COMPLETE
-00057  1023  8D 00 10              STA     TEMP    ; STORE REMAINDER IN TEMP
-00058  1026  AD 02 10              LDA     COUNTER ; STORE DIVISON RESULT IN A
-00059  1029  60                    RTS
-00060  102A             
-00061  102A             ;
-00062  102A             ; UNSIGNED DIVISION ROUTINE
-00063  102A             ; BIG SHOUTOUT TO THIS PAGE
-00064  102A             ; HTTP://6502.ORG/TUTORIALS/COMPARE_INSTRUCTIONS.HTML
-00065  102A             UNSIGNEDDIVIDE ; A / TEMP
-00066  102A  48                    PHA
-00067  102B  A9 00                 LDA     #00
-00068  102D  8D 02 10              STA     COUNTER
-00069  1030  68                    PLA
-00070  1031             UNSIGNEDDIVIDELOOP 
-00071  1031  CD 00 10              CMP     TEMP    ; CHECK IF TEMP < A
-00072  1034  90 0B                 BCC     UNSIGNEDDIVIDEEND; IF IT IS, END < A
-00073  1036  F0 09                 BEQ     UNSIGNEDDIVIDEEND; IF IT IS, END
-00074  1038  ED 00 10              SBC     TEMP    ; IF IT ISN'T SUBTRACT
-00075  103B  EE 02 10              INC     COUNTER ; INCREMENT COUNTER
-00076  103E  4C 31 10              JMP     UNSIGNEDDIVIDELOOP; RETURN TO CHECK
-00077  1041             UNSIGNEDDIVIDEEND ; IF DIVISION COMPLETE
-00078  1041  8D 00 10              STA     TEMP    ; STORE REMAINDER IN TEMP
-00079  1044  AD 02 10              LDA     COUNTER ; STORE DIVISON RESULT IN A
-00080  1047  60                    RTS
-00081  1048             ;
-00082  1048             ; MULTIPLICATION ROUTINE
-00083  1048             ; COULD BE MADE MORE EFFICIENT BY CHECKING WHICH ONE IS SMALLER BEFOREHAND
-00084  1048             MULTIPLY   ; A*TEMP
-00085  1048  8D 01 10              STA TEMP2
-00086  104B             MULTIPLYLOOP 
-00087  104B  CE 00 10              DEC TEMP        ; DECREMENT TEMP
-00088  104E  F0 06                 BEQ MULTIPLYEND ; CHECK IF TEMP == 0
-00089  1050  6D 01 10              ADC TEMP2
-00090  1053  4C 4B 10              JMP MULTIPLYLOOP
-00091  1056             MULTIPLYEND 
-00092  1056  60                    RTS
-00093  1057             
-00094  1057             ;
-00095  1057             ; DRAW BOX OF CHARACTERS
-00096  1057             SCREENFILL 
-00097  1057  A2 00                 LDX #00
-00098  1059  A0 00                 LDY #00
-00099  105B             SCREENLOOP ; SELF MODIFYING CODE TO ADC #40 TO THE ADDRESS?
-00100  105B  98                    TYA
-00101  105C  9D 00 04              STA $0400,X
-00102  105F             
-00103  105F  69 10                 ADC #16
-00104  1061  9D 28 04              STA $0428,X
-00105  1064             
-00106  1064  69 10                 ADC #16
-00107  1066  9D 50 04              STA $0450,X
-00108  1069             
-00109  1069  69 10                 ADC #16
-00110  106B  9D 78 04              STA $0478,X
-00111  106E             
-00112  106E  69 10                 ADC #16
-00113  1070  9D A0 04              STA $04A0,X
-00114  1073             
-00115  1073  69 10                 ADC #16
-00116  1075  9D C8 04              STA $04C8,X
-00117  1078             
-00118  1078  69 10                 ADC #16
-00119  107A  9D F0 04              STA $04F0,X
-00120  107D             
-00121  107D  69 10                 ADC #16
-00122  107F  9D 18 05              STA $0518,X
-00123  1082             
-00124  1082  69 10                 ADC #16
-00125  1084  9D 40 05              STA $0540,X
-00126  1087             
-00127  1087  69 10                 ADC #16
-00128  1089  9D 68 05              STA $0568,X
-00129  108C             
-00130  108C  69 10                 ADC #16
-00131  108E  9D 90 05              STA $0590,X
-00132  1091             
-00133  1091  69 10                 ADC #16
-00134  1093  9D B8 05              STA $05B8,X
-00135  1096             
-00136  1096  69 10                 ADC #16
-00137  1098  9D E0 05              STA $05E0,X
-00138  109B             
-00139  109B  69 10                 ADC #16
-00140  109D  9D 08 06              STA $0608,X
-00141  10A0             
-00142  10A0  69 10                 ADC #16
-00143  10A2  9D 30 06              STA $0630,X
-00144  10A5             
-00145  10A5  69 10                 ADC #16
-00146  10A7  9D 58 06              STA $0658,X
-00147  10AA             
-00148  10AA  69 11                 ADC #17
-00149  10AC  A8                    TAY
-00150  10AD             ; CHECK IF ALL COLLUMNS HAVE BEEN DRAWN
-00151  10AD  E8                    INX
-00152  10AE  8A                    TXA
-00153  10AF  C9 10                 CMP #16
-00154  10B1  D0 A8                 BNE SCREENLOOP
-00155  10B3  60                    RTS
-00156  10B4             
-00157  10B4             ; DRAW PIXEL ROUTINE
-00158  10B4             DRAWPIXEL
-00159  10B4                        ;
-00160  10B4                        ;  XX YY
-00161  10B4                        ;  || ||
-00162  10B4                        ;  VV VV
-00163  10B4                        ;
-00164  10B4                        ; $3Y XY X <- PIXEL IN CHARACTER
-00165  10B4                        ;  || ||
-00166  10B4                        ;  || |+----> LINE IN CHARACTER
-00167  10B4                        ;  || +-----> HORIZONTAL TILE
-00168  10B4                        ;  |+-------> VERTICAL TILE
-00169  10B4                        ;  +--------> ADDRESS
-00170  10B4                        ;
-00171  10B4                        ; 0011:0YYY YXXX:XYYY ; 0XXX
-00172  10B4                        ;
-00173  10B4                        ; E.G.
-00174  10B4                        ; $3015 = 0X01TH CHARACTER OF 0X00TH LINE, 5TH SUB-LINE
-00175  10B4                        ; MAX PIXELS OF 0-127!!
-00176  10B4                        ; DO THE UPPER BYTE
-00177  10B4  AD 04 10              LDA YPIXEL
-00178  10B7  4A                    LSR A
-00179  10B8  4A                    LSR A
-00180  10B9  4A                    LSR A
-00181  10BA  4A                    LSR A
-00182  10BB  4A                    LSR A
-00183  10BC  09 30                 ORA #48 ; 0X30
-00184  10BE  8D DB 10              STA MODIFYTHIS+2
-00185  10C1                        ; LOWER BYTE
-00186  10C1  A9 00                 LDA #0
-00187  10C3  6A                    ROR ; SHIFT CARRY INTO A
-00188  10C4  0D 03 10              ORA XPIXEL
-00189  10C7  29 F8                 AND #248 ; 1111 1000
-00190  10C9  8D 00 10              STA TEMP
-00191  10CC  AD 04 10              LDA YPIXEL
-00192  10CF  29 07                 AND #7   ; 0000 0111
-00193  10D1  0D 00 10              ORA TEMP
-00194  10D4  8D DA 10              STA MODIFYTHIS+1
-00195  10D7                        ;
-00196  10D7  A9 55                 LDA #85 ; 0101 0101
-00197  10D9             MODIFYTHIS 
-00198  10D9                        ;JSR MANDELBROT
-00199  10D9  8D 00 30              STA CHARACTERSET
-00200  10DC                        ;STA CHARACTERSET
-00201  10DC                        ; WILL REQUIRE SELF MODIFYING CODE
-00202  10DC                        ; WILL DRAW WHICHEVER PIXEL IS CURRENTLY BEING POINTED AT
-00203  10DC                        ; BY XPIXEL & YPIXEL
-00204  10DC                        ; PROBABLY SOMETHING WHERE IT'S CMP'D WITH A MINIMUM VALUE, THEN
-00205  10DC                        ; BITSHIFT LEFT OF THE RELEVANT LINE, OR #01,
-00206  10DC                        ; UNTIL THE CHARACTER LINE IS FINISHED
-00207  10DC  60                    RTS
-00208  10DD             
-00209  10DD             MANDELBROT 
-00210  10DD  A2 00                 LDX #00
-00211  10DF             MANDELLOOP 
-00212  10DF  EE 04 10              INC YPIXEL
-00213  10E2  20 B4 10              JSR DRAWPIXEL
-00214  10E5  E8                    INX
-00215  10E6  D0 F7                 BNE MANDELLOOP
-00216  10E8  60                    RTS
-00217  10E9             
-00218  10E9             *=$2000
-00219  2000             ; MAIN LOOP
-00220  2000             MAIN
-00221  2000  A9 00                 LDA #00   ; LOAD 0(BLACK)
-00222  2002  8D 20 D0              STA $D020 ; CHANGE BORDER TO BLACK
-00223  2005  8D 21 D0              STA $D021 ; CHANGE BG0 TO BLACK
-00224  2008                        ; REDEFINE CHARACTER SET LOCATION
-00225  2008  AD 18 D0              LDA MEMORYSETUP
-00226  200B  29 F0                 AND #240
-00227  200D  09 0C                 ORA #12
-00228  200F  8D 18 D0              STA MEMORYSETUP
-00229  2012                        ; FILL SCREEN WITH CHARACTERS
-00230  2012  20 57 10              JSR SCREENFILL
-00231  2015                        ; DRAW THAT SHIT
-00232  2015  20 DD 10              JSR MANDELBROT
-00233  2018                        ;JSR DRAWPIXEL
-00234  2018  4C 1B 20              JMP     FREEZE
-00235  201B             
-00236  201B             FREEZE
-00237  201B  4C 1B 20              JMP FREEZE
-00238  201E             
+00030  1007             
+00031  1007             ;
+00032  1007             ; MULTIPLICATION ROUTINE
+00033  1007             ; COULD BE MADE MORE EFFICIENT BY CHECKING WHICH ONE IS SMALLER BEFOREHAND
+00034  1007             MULTIPLY   ; A*TEMP
+00035  1007  8D 01 10              STA TEMP2
+00036  100A             MULTIPLYLOOP 
+00037  100A  CE 00 10              DEC TEMP        ; DECREMENT TEMP
+00038  100D  F0 06                 BEQ MULTIPLYEND ; CHECK IF TEMP == 0
+00039  100F  6D 01 10              ADC TEMP2
+00040  1012  4C 0A 10              JMP MULTIPLYLOOP
+00041  1015             MULTIPLYEND 
+00042  1015  60                    RTS
+00043  1016             
+00044  1016             ; SIII DDDD
+00045  1016             
+00046  1016             MANDELBROT 
+00047  1016                        ; PY = -2.0
+00048  1016  A9 C0                 LDA #-64
+00049  1018  8D 03 10              STA PY
+00050  101B                        
+00051  101B  60                    RTS
+00052  101C             *=$2000
+00053  2000             ; MAIN LOOP
+00054  2000             MAIN
+00055  2000  A9 00                 LDA #00   ; LOAD 0(BLACK)
+00056  2002  8D 20 D0              STA $D020 ; CHANGE BORDER TO BLACK
+00057  2005  8D 21 D0              STA $D021 ; CHANGE BG0 TO BLACK
+00058  2008                        ; REDEFINE CHARACTER SET LOCATION
+00059  2008  AD 18 D0              LDA MEMORYSETUP
+00060  200B  29 F0                 AND #240
+00061  200D  09 0C                 ORA #12
+00062  200F  8D 18 D0              STA MEMORYSETUP
+00063  2012                        ; DRAW THAT SHIT
+00064  2012  20 16 10              JSR MANDELBROT
+00065  2015                        ;JSR DRAWPIXEL
+00066  2015  4C 18 20              JMP     FREEZE
+00067  2018             
+00068  2018             FREEZE
+00069  2018  4C 18 20              JMP FREEZE
+00070  201B             
 
-******* 29 Label(s) *******
-counter = $1002 
-cx = $1007 
-cy = $1008 
-DRAWPIXEL = $10B4 
-FREEZE = $201B 
-iterations = $1005 
-iterator = $100B 
+******* 13 Label(s) *******
+FREEZE = $2018 
+iterations = $1004 
 MAIN = $2000 
-MANDELBROT = $10DD 
-MANDELLOOP = $10DF 
-MODIFYTHIS = $10D9 
-MULTIPLY = $1048 
-MULTIPLYEND = $1056 
-MULTIPLYLOOP = $104B 
-pixelcounter = $1006 
-SCREENFILL = $1057 
-SCREENLOOP = $105B 
-SIGNEDDIVIDE = $100C 
-SIGNEDDIVIDEEND = $1023 
-SIGNEDDIVIDELOOP = $1013 
+MANDELBROT = $1016 
+MULTIPLY = $1007 
+MULTIPLYEND = $1015 
+MULTIPLYLOOP = $100A 
+px = $1002 
+py = $1003 
 temp = $1000 
 temp2 = $1001 
-UNSIGNEDDIVIDE = $102A 
-UNSIGNEDDIVIDEEND = $1041 
-UNSIGNEDDIVIDELOOP = $1031 
-xPixel = $1003 
-yPixel = $1004 
-zx = $1009 
-zy = $100A 
+x = $1005 
+y = $1006 
 
-******* 12 Unused label(s) *******
-cx
-cy
+******* 6 Unused label(s) *******
 iterations
-iterator
 MAIN
-MODIFYTHIS
 MULTIPLY
-pixelcounter
-SIGNEDDIVIDE
-UNSIGNEDDIVIDE
-zx
-zy
+px
+x
+y
 
 ******* 3 Variable(s) *******
 CHARACTERSET  = $3000
 MEMORYSETUP  = $D018
 tgt_c64  = $0001
-******* 1 Unused variables(s) *******
+******* 2 Unused variables(s) *******
+CHARACTERSET
 tgt_c64
 
